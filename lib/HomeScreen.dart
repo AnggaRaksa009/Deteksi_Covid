@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:kanker/Image_Picker.dart';
+import 'package:kanker/api.dart';
 import 'package:kanker/app.dart';
-import 'package:kanker/test.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -26,6 +28,42 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       imageFile = null;
     });
+  }
+
+  var result;
+
+  Future<void> uploadImage() async {
+    if (imageFile == null) {
+      // Handle case when no image is selected
+      return;
+    }
+
+    Uri uri = Uri.parse(
+        'http://192.168.1.8:5000/predict'); // Ganti URL sesuai kebutuhan Anda.
+    var request = http.MultipartRequest('POST', uri);
+
+    request.files
+        .add(await http.MultipartFile.fromPath('image', imageFile!.path));
+
+    try {
+      final response = await request.send();
+
+      if (response.statusCode == 200) {
+        print('Image uploaded successfully');
+        final res = await response.stream.bytesToString();
+        print(res);
+        final jsonResponse = json.decode(res);
+        final prediction = jsonResponse['prediction'];
+        setState(() {
+          result = prediction;
+        });
+      } else {
+        print(
+            'Failed to upload image with status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error uploading image: $error');
+    }
   }
 
   @override
@@ -65,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   image: DecorationImage(
                     image: imageFile != null
                         ? FileImage(imageFile!)
-                        : AssetImage('assets/iconSplash.png')
+                        : AssetImage('assets/top1.png')
                             as ImageProvider, // Gunakan AssetImage untuk gambar dari aset
                     fit: BoxFit.fill, // Atur sesuai kebutuhan Anda
                   ),
@@ -80,6 +118,9 @@ class _HomeScreenState extends State<HomeScreen> {
             decoration: BoxDecoration(
                 color: Color(0xffD9D9D9),
                 borderRadius: BorderRadius.circular(12)),
+            child: Center(
+              child: Text(result ?? '', style: TextStyle(fontSize: 16)),
+            ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -135,24 +176,15 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => test(),
-                ),
-              );
-            },
+          ElevatedButton(
+            onPressed: uploadImage,
             child: Container(
               alignment: Alignment.center,
               margin: EdgeInsets.only(top: 31),
               width: 200,
               height: 42,
-              child: Column(
-                children: [
-                  ImageClassificationScreen(),
-                ],
+              child: Center(
+                child: Text("Proses"),
               ),
               decoration: BoxDecoration(
                 color: const Color(
