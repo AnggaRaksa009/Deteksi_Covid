@@ -1,73 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:kanker/Image_Picker.dart';
-import 'package:kanker/api.dart';
-import 'package:kanker/app.dart';
-import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:image_picker/image_picker.dart';
+import 'dart:typed_data';
+import 'package:image/image.dart' as img;
 
-class HomeScreen extends StatefulWidget {
+class Invers extends StatefulWidget {
+  const Invers({Key? key}) : super(key: key);
+
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<Invers> createState() => _InversState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _InversState extends State<Invers> {
   File? imageFile;
 
   Future<void> selectImage() async {
-    final XFile? pickedImage = await pickImage();
+    final XFile? pickedImage =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedImage != null) {
+      File imageFile = File(pickedImage.path);
+
+      List<int> imageBytes = await imageFile.readAsBytes();
+      img.Image image = img.decodeImage(Uint8List.fromList(imageBytes))!;
+
+      img.invert(image);
+
+      File invertedImageFile =
+          File(imageFile.path.replaceFirst('.png', '_inverted.png'));
+      invertedImageFile.writeAsBytesSync(img.encodePng(image));
+
       setState(() {
-        imageFile = File(pickedImage.path);
+        this.imageFile = invertedImageFile;
       });
     }
   }
 
-  void clearImage() {
-    setState(() {
-      imageFile = null;
-      result = null;
-    });
-  }
-
-  var result;
-
-  Future<void> uploadImage() async {
-    if (imageFile == null) {
-      // Handle case when no image is selected
-      return;
-    }
-
-    Uri uri = Uri.parse('http://192.168.1.8:5000/predict');
-    var request = http.MultipartRequest('POST', uri);
-
-    request.files
-        .add(await http.MultipartFile.fromPath('image', imageFile!.path));
-
-    try {
-      final response = await request.send();
-
-      if (response.statusCode == 200) {
-        print('Image uploaded successfully');
-        final res = await response.stream.bytesToString();
-        print(res);
-        final jsonResponse = json.decode(res);
-        final prediction = jsonResponse['prediction'];
-        setState(() {
-          result = prediction;
-        });
-      } else {
-        print(
-            'Failed to upload image with status code: ${response.statusCode}');
-      }
-    } catch (error) {
-      print('Error uploading image: $error');
-    }
-  }
-
   @override
- Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: [
@@ -96,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: 60, left: 25),
                 child: Text(
-                  "Hasil",
+                  "Invers",
                   style: TextStyle(fontSize: 32, color: Colors.white),
                 ),
               ),
@@ -118,27 +87,14 @@ class _HomeScreenState extends State<HomeScreen> {
               )
             ],
           ),
-          Container(
-            margin: EdgeInsets.only(top: 82),
-            width: 267,
-            height: 48,
-            decoration: BoxDecoration(
-                color: Color(0xffD9D9D9),
-                borderRadius: BorderRadius.circular(12)),
-            child: Center(
-              child: Text(result ?? '', style: TextStyle(fontSize: 16)),
-            ),
-          ),
-          Row(
+          Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               GestureDetector(
-                onTap: () {
-                  selectImage();
-                },
+                onTap: selectImage,
                 child: Container(
                   margin: EdgeInsets.only(top: 96),
-                  width: 144,
+                  width: 200,
                   height: 42,
                   child: Center(
                     child: Text(
@@ -156,18 +112,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-              const SizedBox(
-                width: 28,
-              ),
               GestureDetector(
-                onTap: clearImage,
                 child: Container(
-                  margin: EdgeInsets.only(top: 96),
-                  width: 144,
+                  margin: EdgeInsets.only(top: 13),
+                  width: 200,
                   height: 42,
                   child: Center(
                     child: Text(
-                      "Hapus",
+                      "Next",
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
@@ -182,22 +134,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ],
-          ),
-          SizedBox(
-            height: 12,
-          ),
-          ElevatedButton(
-            onPressed: uploadImage,
-            style: ButtonStyle(
-              backgroundColor: MaterialStatePropertyAll<Color?>(
-                Color(0xff9BB2EC),
-              ),
-            ),
-            child: Container(
-              width: 150,
-              height: 20,
-              child: Center(child: Text("Proses")),
-            ),
           ),
         ],
       ),

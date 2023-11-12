@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kanker/HomeScreen.dart';
+import 'package:kanker/gray.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -12,7 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: SplashScreen(), // Tampilkan splash screen terlebih dahulu
+      home: GrayScale(),
     );
   }
 }
