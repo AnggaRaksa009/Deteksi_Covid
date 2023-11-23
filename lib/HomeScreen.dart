@@ -39,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
-    Uri uri = Uri.parse('http://192.168.1.8:5000/predict');
+    Uri uri = Uri.parse('http://192.168.106.44:5000/predict');
     var request = http.MultipartRequest('POST', uri);
 
     request.files
@@ -67,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
- Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: [

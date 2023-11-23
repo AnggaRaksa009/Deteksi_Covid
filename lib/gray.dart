@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'dart:typed_data';
 import 'package:image/image.dart' as img;
 import 'package:kanker/invers.dart';
 
@@ -14,23 +13,30 @@ class GrayScale extends StatefulWidget {
 
 class _GrayScaleState extends State<GrayScale> {
   File? imageFile;
+  File? grayscaleImageFile;
+
   Future<void> selectImage() async {
     final XFile? pickedImage =
         await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedImage != null) {
       File imageFile = File(pickedImage.path);
-
-      List<int> imageBytes = await imageFile.readAsBytes();
-      img.Image image = img.decodeImage(Uint8List.fromList(imageBytes))!;
+      img.Image image = img.decodeImage(await imageFile.readAsBytes())!;
       img.grayscale(image);
 
       File grayscaleImageFile =
           File(imageFile.path.replaceFirst('.png', '_grayscale.png'));
       grayscaleImageFile.writeAsBytesSync(img.encodePng(image));
 
-      setState(() {
-        this.imageFile = grayscaleImageFile;
-      });
+      String pathToGrayscaleImage = grayscaleImageFile.path;
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Invers(
+            grayscaleImagePath: pathToGrayscaleImage,
+          ),
+        ),
+      );
     }
   }
 
@@ -61,24 +67,24 @@ class _GrayScaleState extends State<GrayScale> {
                   ),
                 ],
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 60, left: 25),
+              const Padding(
+                padding: EdgeInsets.only(top: 60, left: 25),
                 child: Text(
                   "Grayscale",
                   style: TextStyle(fontSize: 32, color: Colors.white),
                 ),
               ),
               Container(
-                margin: EdgeInsets.only(left: 40, top: 106),
+                margin: const EdgeInsets.only(left: 40, top: 106),
                 height: 316,
                 width: 316,
                 decoration: BoxDecoration(
-                  color: Color(0xffD9D9D9),
+                  color: const Color(0xffD9D9D9),
                   borderRadius: BorderRadius.circular(20),
                   image: DecorationImage(
                     image: imageFile != null
-                        ? FileImage(imageFile!)
-                        : AssetImage('assets/top1.png')
+                        ? FileImage(File(imageFile!.path))
+                        : const AssetImage('assets/top1.png')
                             as ImageProvider, // Gunakan AssetImage untuk gambar dari aset
                     fit: BoxFit.fill, // Atur sesuai kebutuhan Anda
                   ),
@@ -92,15 +98,9 @@ class _GrayScaleState extends State<GrayScale> {
               GestureDetector(
                 onTap: selectImage,
                 child: Container(
-                  margin: EdgeInsets.only(top: 96),
+                  margin: const EdgeInsets.only(top: 96),
                   width: 200,
                   height: 42,
-                  child: Center(
-                    child: Text(
-                      "Upload",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
                   decoration: BoxDecoration(
                     color: const Color(
                       0xff9BB2EC,
@@ -109,43 +109,33 @@ class _GrayScaleState extends State<GrayScale> {
                       15,
                     ),
                   ),
-                ),
-              ),
-              SizedBox(
-                height: 12,
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => Invers(),
-                    ),
-                  );
-                },
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color?>(
-                    Color(0xff9BB2EC),
-                  ),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                          15.0), // Atur radius sesuai keinginan Anda
-                    ),
-                  ),
-                ),
-                child: Container(
-                  margin: EdgeInsets.only(top: 13),
-                  width: 170,
-                  height: 30,
-                  child: Center(
+                  child: const Center(
                     child: Text(
-                      "Next",
+                      "Upload",
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
+                ),
+              ),
+              const SizedBox(
+                height: 12,
+              ),
+              Container(
+                margin: const EdgeInsets.only(top: 13),
+                width: 200,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: const Color(
+                    0xff9BB2EC,
+                  ),
+                  borderRadius: BorderRadius.circular(
+                    15,
+                  ),
+                ),
+                child: const Center(
+                  child: Text(
+                    "Next",
+                    style: TextStyle(color: Colors.white),
                   ),
                 ),
               ),

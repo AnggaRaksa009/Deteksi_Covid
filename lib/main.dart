@@ -3,22 +3,26 @@ import 'package:kanker/HomeScreen.dart';
 import 'package:kanker/gray.dart';
 
 void main() {
-  runApp(MaterialApp(
+  runApp(const MaterialApp(
     debugShowCheckedModeBanner: false,
     home: MyApp(),
   ));
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       home: GrayScale(),
     );
   }
 }
 
 class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
@@ -28,7 +32,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     Future.delayed(
-      Duration(seconds: 3),
+      const Duration(seconds: 3),
       () {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
@@ -43,13 +47,13 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xff5D79C2),
+      backgroundColor: const Color(0xff5D79C2),
       body: Center(
         child: Column(
           children: [
-            Spacer(),
+            const Spacer(),
             Image.asset('assets/iconSplash.png'),
-            Spacer(),
+            const Spacer(),
             Image.asset('assets/footerSplash.png'),
           ],
         ),

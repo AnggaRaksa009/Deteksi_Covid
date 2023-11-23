@@ -89,6 +89,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.1"
+  ffi:
+    dependency: transitive
+    description:
+      name: ffi
+      sha256: "7bf0adc28a23d395f19f3f1eb21dd7cfd1dd9f8e1c50051c069122e6853bc878"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
   file_selector_linux:
     dependency: transitive
     description:
@@ -180,34 +188,18 @@ packages:
     dependency: "direct main"
     description:
       name: image_cropper
-      sha256: "19340e50a8c09124ef2196884e9eb79d219d84cb819cfbf52141221216e30515"
+      sha256: "60542ffd03436e6f80a1d7c9839f75b6a62b0a290cd98624fa29d150fdf672c8"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.0"
-  image_cropper_for_web:
-    dependency: transitive
-    description:
-      name: image_cropper_for_web
-      sha256: "865d798b5c9d826f1185b32e5d0018c4183ddb77b7b82a931e1a06aa3b74974e"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.0"
-  image_cropper_platform_interface:
-    dependency: transitive
-    description:
-      name: image_cropper_platform_interface
-      sha256: ee160d686422272aa306125f3b6fb1c1894d9b87a5e20ed33fa008e7285da11e
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.0.0"
+    version: "1.5.1"
   image_picker:
     dependency: "direct main"
     description:
       name: image_picker
-      sha256: "7d7f2768df2a8b0a3cefa5ef4f84636121987d403130e70b17ef7e2cf650ba84"
+      sha256: b6951e25b795d053a6ba03af5f710069c99349de9341af95155d52665cb4607c
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.4"
+    version: "0.8.9"
   image_picker_android:
     dependency: transitive
     description:
@@ -220,10 +212,10 @@ packages:
     dependency: transitive
     description:
       name: image_picker_for_web
-      sha256: "50bc9ae6a77eea3a8b11af5eb6c661eeb858fdd2f734c2a4fd17086922347ef7"
+      sha256: "869fe8a64771b7afbc99fc433a5f7be2fea4d1cb3d7c11a48b6b579eb9c797f0"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.1"
+    version: "2.2.0"
   image_picker_ios:
     dependency: transitive
     description:
@@ -312,6 +304,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.4"
+  opencv_ffi:
+    dependency: "direct main"
+    description:
+      name: opencv_ffi
+      sha256: c0be74535415542aa09d533bb2d3856004e7b1bd1cfc33e675facb7b28e99fa3
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
   path:
     dependency: transitive
     description:
