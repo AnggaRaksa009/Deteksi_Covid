@@ -14,6 +14,7 @@ class GrayScale extends StatefulWidget {
 class _GrayScaleState extends State<GrayScale> {
   File? imageFile;
   File? grayscaleImageFile;
+  String? pathToGrayscaleImage;
 
   Future<void> selectImage() async {
     final XFile? pickedImage =
@@ -27,16 +28,12 @@ class _GrayScaleState extends State<GrayScale> {
           File(imageFile.path.replaceFirst('.png', '_grayscale.png'));
       grayscaleImageFile.writeAsBytesSync(img.encodePng(image));
 
-      String pathToGrayscaleImage = grayscaleImageFile.path;
+      pathToGrayscaleImage = grayscaleImageFile.path;
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Invers(
-            grayscaleImagePath: pathToGrayscaleImage,
-          ),
-        ),
-      );
+      setState(() {
+        this.imageFile = grayscaleImageFile;
+        pathToGrayscaleImage = grayscaleImageFile.path;
+      });
     }
   }
 
@@ -120,22 +117,34 @@ class _GrayScaleState extends State<GrayScale> {
               const SizedBox(
                 height: 12,
               ),
-              Container(
-                margin: const EdgeInsets.only(top: 13),
-                width: 200,
-                height: 42,
-                decoration: BoxDecoration(
-                  color: const Color(
-                    0xff9BB2EC,
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Invers(
+                        grayscaleImagePath: pathToGrayscaleImage,
+                      ),
+                    ),
+                  );
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(top: 13),
+                  width: 200,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: const Color(
+                      0xff9BB2EC,
+                    ),
+                    borderRadius: BorderRadius.circular(
+                      15,
+                    ),
                   ),
-                  borderRadius: BorderRadius.circular(
-                    15,
-                  ),
-                ),
-                child: const Center(
-                  child: Text(
-                    "Next",
-                    style: TextStyle(color: Colors.white),
+                  child: const Center(
+                    child: Text(
+                      "Next",
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
               ),

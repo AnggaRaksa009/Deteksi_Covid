@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';
 import 'package:image/image.dart' as img;
+import 'package:kanker/HomeScreen.dart';
 
 class Invers extends StatefulWidget {
   final String? grayscaleImagePath;
@@ -14,23 +15,8 @@ class Invers extends StatefulWidget {
 
 class _InversState extends State<Invers> {
   File? imageFile;
+  Uint8List? imageBytes;
 
-  // img.Image? invertImage(img.Image? image) {
-  //   if (image != null) {
-  //     print("awal");
-  //     img.invert(image);
-  //     File invertedImageFile =
-  //         File(imageFile!.path.replaceFirst('.png', '_inverted.png'));
-  //     invertedImageFile.writeAsBytesSync(img.encodePng(image));
-  //     setState(() {
-  //       imageFile = invertedImageFile;
-  //     });
-
-  //     print("akhir");
-  //     return image;
-  //   }
-  //   return null;
-  // }
   Future<void> invertImage() async {
     print("1");
     if (imageFile != null) {
@@ -44,8 +30,10 @@ class _InversState extends State<Invers> {
       invertedImageFile.writeAsBytesSync(img.encodePng(image));
       print("3");
 
+      Uint8List invertedImageBytes = await invertedImageFile.readAsBytes();
+
       setState(() {
-        imageFile = invertedImageFile;
+        imageBytes = invertedImageBytes;
       });
     }
   }
@@ -100,9 +88,7 @@ class _InversState extends State<Invers> {
                   color: const Color(0xffD9D9D9),
                   borderRadius: BorderRadius.circular(20),
                   image: DecorationImage(
-                    image: imageFile != null
-                        ? FileImage(File(imageFile!.path))
-                        : const AssetImage('assets/top1.png') as ImageProvider,
+                    image: getImageProvider(),
                     fit: BoxFit.fill,
                   ),
                 ),
@@ -137,6 +123,14 @@ class _InversState extends State<Invers> {
                 ),
               ),
               GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HomeScreen(),
+                    ),
+                  );
+                },
                 child: Container(
                   margin: const EdgeInsets.only(top: 13),
                   width: 200,
@@ -162,5 +156,15 @@ class _InversState extends State<Invers> {
         ],
       ),
     );
+  }
+
+  ImageProvider<Object> getImageProvider() {
+    if (imageBytes != null) {
+      return Image.memory(imageBytes!).image;
+    } else if (widget.grayscaleImagePath != null) {
+      return Image.file(File(widget.grayscaleImagePath!)).image;
+    } else {
+      return const AssetImage('assets/top1.png');
+    }
   }
 }

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_file_downloader/flutter_file_downloader.dart';
 import 'package:kanker/Image_Picker.dart';
-import 'package:kanker/api.dart';
-import 'package:kanker/app.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+// import 'package:file_picker/file_picker.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -14,6 +14,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   File? imageFile;
+  String? downloadLink;
+  bool isLoading = false;
 
   Future<void> selectImage() async {
     final XFile? pickedImage = await pickImage();
@@ -33,13 +35,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   var result;
 
-  Future<void> uploadImage() async {
+  Future<void> prosesimage() async {
     if (imageFile == null) {
-      // Handle case when no image is selected
       return;
     }
 
-    Uri uri = Uri.parse('http://192.168.106.44:5000/predict');
+    Uri uri = Uri.parse('http://192.168.100.195:5000/predict');
+
     var request = http.MultipartRequest('POST', uri);
 
     request.files
@@ -64,6 +66,72 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (error) {
       print('Error uploading image: $error');
     }
+  }
+
+  Uri uriGlcm = Uri.parse('https://40c2-103-187-117-117.ngrok-free.app/glcm');
+  Future<void> prosesglcm() async {
+    setState(() {
+      isLoading = true;
+    });
+    if (imageFile == null) {
+      return;
+    }
+
+    var request = http.MultipartRequest('post', uriGlcm);
+
+    request.files
+        .add(await http.MultipartFile.fromPath('image', imageFile!.path));
+
+    try {
+      final response = await request.send();
+
+      if (response.statusCode == 200) {
+        print('Image uploaded successfully for GLCM');
+        final res = await response.stream.bytesToString();
+        print('GLCM response: $res');
+        final jsonResponse = json.decode(res);
+
+        if (jsonResponse.containsKey('download_link')) {
+          final prediction = jsonResponse['download_link'];
+          setState(() {
+            result = prediction;
+          });
+          print('GLCM prediction: $prediction');
+
+          String downladCSVUrl =
+              'https://40c2-103-187-117-117.ngrok-free.app$prediction';
+
+          print(downladCSVUrl);
+
+          FileDownloader.downloadFile(
+              url: downladCSVUrl,
+              onProgress: (String? fileName, double progress) {
+                print('FILE $fileName HAS PROGRESS $progress');
+              },
+              onDownloadCompleted: (String path) {
+                print('FILE DOWNLOADED TO PATH: $path');
+              },
+              onDownloadError: (String error) {
+                print('DOWNLOAD ERROR: $error');
+              });
+        } else {
+          print('Response does not contain the "prediction" key.');
+        }
+      } else {
+        print(
+            'Failed to upload image with GLCM, status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error uploading image with GLCM: $error');
+    }
+    setState(() {
+      isLoading = false;
+    });
+    // FilePickerResult? pickGlcm = await FilePicker.platform.pickFiles();
+
+    // if (result != null) {
+    //   File ambilGlcm = File(result.files.single.path!);
+    // } else {}
   }
 
   @override
@@ -186,18 +254,68 @@ class _HomeScreenState extends State<HomeScreen> {
           SizedBox(
             height: 12,
           ),
-          ElevatedButton(
-            onPressed: uploadImage,
-            style: ButtonStyle(
-              backgroundColor: MaterialStatePropertyAll<Color?>(
-                Color(0xff9BB2EC),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  prosesimage();
+                },
+                child: Container(
+                  // margin: EdgeInsets.only(top: 96),
+                  width: 144,
+                  height: 42,
+                  child: Center(
+                    child: Text(
+                      "Proses",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(
+                      0xff9BB2EC,
+                    ),
+                    borderRadius: BorderRadius.circular(
+                      15,
+                    ),
+                  ),
+                ),
               ),
-            ),
-            child: Container(
-              width: 150,
-              height: 20,
-              child: Center(child: Text("Proses")),
-            ),
+              const SizedBox(
+                width: 28,
+              ),
+              GestureDetector(
+                onTap: isLoading ? null : prosesglcm,
+                child: Container(
+                  // margin: EdgeInsets.only(top: 96),
+                  width: 144,
+                  height: 42,
+                  child: Center(
+                    child: isLoading
+                        ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 3,
+                            ),
+                          )
+                        : Text(
+                            "GLCM",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(
+                      0xff9BB2EC,
+                    ),
+                    borderRadius: BorderRadius.circular(
+                      15,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
